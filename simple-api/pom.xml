@@ -104,8 +104,8 @@
 						</goals>
 					</execution>
 					<execution>
-						<id>post-unit-test</id>
-						<phase>test</phase>
+						<id>report-all-tests</id>
+						<phase>verify</phase>
 						<goals>
 							<goal>report</goal>
 						</goals>
