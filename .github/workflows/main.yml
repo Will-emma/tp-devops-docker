@@ -21,7 +21,7 @@ jobs:
 
     # Build, tests et analyse de qualité du code par SonarCloud
       - name: Build, test and analyze with Maven + SonarCloud
-        run: mvn -B verify sonar:sonar -Dsonar.projectKey=Will-emma_tp-devops-docker -Dsonar.organization=will-emma -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SONAR_TOKEN }} --file simple-api/pom.xml
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Will-emma_tp-devops-docker -Dsonar.organization=will-emma -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SONAR_TOKEN }} --file simple-api/pom.xml
 
   build-and-push-docker-image:
     needs: test-backend
