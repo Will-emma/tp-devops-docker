@@ -1,0 +1,9 @@
+---
+- name: Create front network
+  community.docker.docker_network:
+    name: front-network
+
+- name: Create back network
+  community.docker.docker_network:
+    name: back-network
+    internal: true

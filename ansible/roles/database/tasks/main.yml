@@ -1,0 +1,13 @@
+---
+- name: Run database
+  community.docker.docker_container:
+    name: database
+    image: willemma/tp-devops-database
+    pull: true
+    restart_policy: unless-stopped
+    env:
+      POSTGRES_PASSWORD: "{{ postgres_password }}"
+    volumes:
+      - db-volume:/var/lib/postgresql/data
+    networks:
+      - name: back-network
