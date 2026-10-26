@@ -1,0 +1,9 @@
+---
+- name: Run front
+  community.docker.docker_container:
+    name: front
+    image: willemma/tp-devops-front
+    pull: true
+    restart_policy: unless-stopped
+    networks:
+      - name: front-network
