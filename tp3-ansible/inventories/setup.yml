@@ -1,0 +1,10 @@
+all:
+  vars:
+    ansible_user: admin
+    ansible_ssh_private_key_file: /home/will/.ssh/id_rsa
+    postgres_db: db
+    postgres_user: usr
+    postgres_password: pwd
+  children:
+    prod:
+      hosts: willemmanuel.poaty.takima.school

@@ -1,0 +1,15 @@
+---
+- name: Run backend
+  community.docker.docker_container:
+    name: backend
+    image: willemma/backend
+    pull: true
+    restart_policy: unless-stopped
+    env:
+      DB_HOST: database
+      DB_NAME: "{{ postgres_db }}"
+      DB_USER: "{{ postgres_user }}"
+      DB_PASSWORD: "{{ postgres_password }}"
+    networks:
+      - name: front-network
+      - name: back-network

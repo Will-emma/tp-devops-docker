@@ -1,0 +1,73 @@
+services:
+  database:
+    build: ./Database
+    image: willemma/database
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - back-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./Backend
+    image: willemma/backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: database
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - back-network
+      - front-network
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  httpd:
+    build: ./HttpServer
+    image: willemma/httpserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - front-network
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  adminer:
+    image: adminer
+    profiles: ["tools"]
+    ports:
+      - "8090:8080"
+    networks:
+      - back-network
+      - admin-network
+    depends_on:
+      - database
+
+
+networks:
+  front-network:
+  back-network:
+    internal: true
+  admin-network:
+
+volumes:
+  db-data:
