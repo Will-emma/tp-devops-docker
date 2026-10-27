@@ -57,17 +57,25 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Install Ansible
-        run: pipx install --include-deps --force ansible
+      # Image Docker qui fournit Ansible
+      - name: Build Ansible image
+        run: docker build -t ansible-runner ./ansible
 
-      - name: Set up SSH key
+      # Clé SSH et mot de passe du vault, depuis les secrets GitHub
+      - name: Set up SSH key and vault password
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 400 ~/.ssh/id_rsa
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ~/.vault_pass
+          chmod 600 ~/.vault_pass
 
-      - name: Deploy with Ansible
-        working-directory: ansible
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
-        run: ansible-playbook -i inventories/setup.yml playbook.yml -e "postgres_password=${{ secrets.POSTGRES_PASSWORD }}"
+      # Ansible tourne dans le conteneur et déchiffre le vault
+      - name: Deploy with Ansible in Docker
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/ansible:/ansible \
+            -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa:ro \
+            -v $HOME/.vault_pass:/vault_pass:ro \
+            -e ANSIBLE_HOST_KEY_CHECKING=False \
+            ansible-runner -i inventories/setup.yml playbook.yml --vault-password-file /vault_pass
