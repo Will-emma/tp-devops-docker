@@ -1,0 +1,11 @@
+---
+- name: Run HTTPD
+  community.docker.docker_container:
+    name: httpd
+    image: willemma/httpserver
+    pull: true
+    restart_policy: unless-stopped
+    published_ports:
+      - "80:80"
+    networks:
+      - name: front-network

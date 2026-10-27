@@ -1,1 +1,4 @@
 .idea
+
+# Identifiants locaux (voir tp1-docker/.env.example)
+.env
